@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<title>Visualizing 2D Arrays</title>
+
+<style>
+    #stage
+    {
+        position: relative;
+    }
+
+    .cell
+    {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border: 1px solid black;
+        background-color: white;
+    }
+</style>
+
+<button>repaint grid</button>
+<div id="stage"></div>
+
+
+<script>
+
+var stage = document.querySelector("#stage");
+
+var SIZE = 60;
+var SPACE = 10;
+
+var acabar = false;
+
+var button = document.querySelector("button");
+button.addEventListener("click", render, false);
+
+function render(){
+        colorTauler = Math.floor(Math.random() * 3)
+        
+        for(var row = 0; row < 8; row++)
+        {
+            for(var column = 0; column<8; column++)
+            {
+                var cell = document.createElement("div");
+
+                cell.setAttribute("class", "cell");
+            
+                stage.appendChild(cell);
+
+                senar = (row + column) % 2; 
+                console.log(colorTauler);
+                if (colorTauler === 0 && senar)
+                    cell.style.backgroundColor = "white";
+                if (colorTauler === 0 && !senar)
+                    cell.style.backgroundColor = "black";
+                if (colorTauler === 1 && senar)
+                    cell.style.backgroundColor = "red";
+                if (colorTauler === 1 && !senar)
+                    cell.style.backgroundColor = "blue";
+                if (colorTauler === 2 && senar)
+                    cell.style.backgroundColor = "green";
+                if (colorTauler === 2  && !senar)
+                    cell.style.backgroundColor = "yellow";
+
+                cell.style.top = row * (SIZE) + "px";
+                cell.style.left = column * (SIZE) + "px";
+            }
+        }
+}
+
+function randomColor() {
+
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+
+    return `rgb(${r},${g},${b})`
+}
+</script>
