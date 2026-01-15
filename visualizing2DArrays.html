@@ -5,6 +5,8 @@
     #stage
     {
         position: relative;
+        width: 480px;
+        height: 480px;
     }
 
     .cell
@@ -18,53 +20,90 @@
 </style>
 
 <button>repaint grid</button>
-<div id="stage"></div>
-
-
+<section id="game">
+  <h1>Manic Miner</h1>
+  <div id="stage"></div>
+  <p id="output"></p> 
+</section>
 <script>
+/*Basant-nos en aquest codi feu les següents modificacions :
+  1) Crea un array de 2 dimensions de 16x16 i ompliu-lo de 1s i 0s aleatòriament
+  2) Representa en una quadricula el array que has creat i posa un color per les bombes i un per la resta
+  array[0][0] = 1;
+  3) Feu una funció que compti el número de bombes
+  4) amb console.log comproveu el resultat
+  5) Poseu un missatge sota el tauler on surti aquesta info pel jugador
+*/
+
 
 var stage = document.querySelector("#stage");
+var missatge = document.getElementById("output");
 
 var SIZE = 60;
 var SPACE = 10;
 
-var acabar = false;
+var ROWS = 10;
+var COLUMNS = 10;
 
+var acabar = false;
+var map = []; //Array unidimensional (!)
 var button = document.querySelector("button");
-button.addEventListener("click", render, false);
+button.addEventListener("click", play, false);
+
+stage.style.width = (COLUMNS * SIZE) + "px";
+stage.style.height = (ROWS * SIZE) + "px";
+
+
+function play(){
+    initArray();
+    console.log(comptarBombes());
+    render();
+}
+
+function comptarBombes(){
+    var laBomba = 0;
+    for (var row = 0; row < ROWS; row++)
+        for (var column = 0; column< COLUMNS; column++)
+            if (map[row][column]>0) laBomba++;
+
+    return laBomba;
+}
+
+function initArray(){
+        var bomba=0;
+        
+        for(var row = 0; row < ROWS; row++)
+        {
+            map[row] = []; //Crea la fila para poder añadir elementos
+            for(var column = 0; column<COLUMNS; column++)
+            {
+                map[row][column] = Math.floor(Math.random() * 2)
+            }
+        }
+}
 
 function render(){
         colorTauler = Math.floor(Math.random() * 3)
         
-        for(var row = 0; row < 8; row++)
+        for(var row = 0; row < ROWS; row++)
         {
-            for(var column = 0; column<8; column++)
+            for(var column = 0; column<COLUMNS; column++)
             {
-                var cell = document.createElement("div");
+                var cell = document.createElement("img");
 
                 cell.setAttribute("class", "cell");
             
                 stage.appendChild(cell);
 
-                senar = (row + column) % 2; 
-                console.log(colorTauler);
-                if (colorTauler === 0 && senar)
-                    cell.style.backgroundColor = "white";
-                if (colorTauler === 0 && !senar)
-                    cell.style.backgroundColor = "black";
-                if (colorTauler === 1 && senar)
-                    cell.style.backgroundColor = "red";
-                if (colorTauler === 1 && !senar)
-                    cell.style.backgroundColor = "blue";
-                if (colorTauler === 2 && senar)
-                    cell.style.backgroundColor = "green";
-                if (colorTauler === 2  && !senar)
-                    cell.style.backgroundColor = "yellow";
-
+                if (map[row][column]){
+                    //cell.style.backgroundColor = "yellow";
+                    cell.src = "images/bomba.png";
+                }
                 cell.style.top = row * (SIZE) + "px";
                 cell.style.left = column * (SIZE) + "px";
             }
         }
+        missatge.innerHTML = comptarBombes();
 }
 
 function randomColor() {
