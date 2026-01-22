@@ -9,14 +9,18 @@
         height: 480px;
     }
 
-    .cell
-    {
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        border: 1px solid black;
-        background-color: white;
-    }
+    .cell {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 1px solid black;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
 </style>
 
 <button>repaint grid</button>
@@ -74,36 +78,88 @@ function initArray(){
         
         for(var row = 0; row < ROWS; row++)
         {
-            map[row] = []; //Crea la fila para poder añadir elementos
+            map[row] = [];
             for(var column = 0; column<COLUMNS; column++)
             {
-                map[row][column] = Math.floor(Math.random() * 2)
+                map[row][column] = Math.floor(Math.random() * 1000) + 1;
             }
         }
 }
 
 function render(){
+        var missatgeSortida = "";
         colorTauler = Math.floor(Math.random() * 3)
         
         for(var row = 0; row < ROWS; row++)
         {
             for(var column = 0; column<COLUMNS; column++)
             {
-                var cell = document.createElement("img");
+                var cell = document.createElement("div");
 
-                cell.setAttribute("class", "cell");
-            
+                //cell.setAttribute("class", "cell");
+                cell.className = "cell"; 
+                cell.dataset.row = row; 
+                cell.dataset.column = column;
                 stage.appendChild(cell);
 
-                if (map[row][column]){
+                if (map[row][column]>5000){
                     //cell.style.backgroundColor = "yellow";
-                    cell.src = "images/bomba.png";
+                    cell.style.backgroundImage = "url('images/bomba.png')";
+                    cell.style.backgroundSize = "cover";
+                }
+                else {
+                    cell.style.backgroundColor = "yellow";
+                    cell.textContent = map[row][column];
                 }
                 cell.style.top = row * (SIZE) + "px";
                 cell.style.left = column * (SIZE) + "px";
             }
         }
-        missatge.innerHTML = comptarBombes();
+        missatgeSortida = "el nombre total de caselles és: " + comptarBombes();
+        missatgeSortida = missatgeSortida + "<br>" + "el número més alt és: " + maxim();
+        missatgeSortida = missatgeSortida + "<br>" + "el número més petit és: " + minim();
+
+        //Pintar fondo celda valor minimo
+
+        //Pintar fondo celda valor maximo
+
+        missatge.innerHTML = missatgeSortida;
+}
+
+function maxim()
+{
+     var elMaxim = 0;
+     var rowMax = 0;
+     var columnMax = 0;
+     
+     for(var row = 0; row < ROWS; row++)
+        {
+            for(var column = 0; column<COLUMNS; column++)
+            {
+                if (map[row][column] > elMaxim){
+                    elMaxim = map[row][column];
+                    rowMax=row;
+                    columnMax=column;
+                }
+            }
+        }
+
+    return elMaxim;
+}
+
+function minim()
+{
+     var elMinim = 1000;
+     for(var row = 0; row < ROWS; row++)
+        {
+            for(var column = 0; column<COLUMNS; column++)
+            {
+                if (map[row][column] < elMinim) elMinim = map[row][column];
+            }
+        }
+
+    return elMinim;
+    return 0;
 }
 
 function randomColor() {

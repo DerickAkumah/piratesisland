@@ -39,7 +39,7 @@ var map =
     [0, 2, 0, 0, 0, 3],
     [0, 0, 0, 1, 0, 0],
     [0, 1, 0, 0, 0, 0],
-    [0, 2, 0, 0, 2, 0],
+    [0, 0, 0, 0, 2, 0],
     [0, 2, 0, 1, 0, 0],
     [0, 0, 0, 0, 0, 0]
 ];
@@ -47,7 +47,7 @@ var map =
 var gameObjects = 
 [
     [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
+    [0, 0, 5, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
@@ -60,6 +60,7 @@ var ISLAND = 1;
 var PIRATE = 2;
 var HOME = 3;
 var SHIP = 4;
+var MONSTER = 5;
  
 //Arrow key codes
  var UP = 38;
@@ -76,6 +77,8 @@ var COLUMNS = map[0].length;
 //An automatic way of setting the ship's start position
 var shipRow;
 var shipColumn;
+var monsterRow;
+var monsterColumn;
 
 //The game variables
 var food = 10;
@@ -92,6 +95,10 @@ for(var row = 0; row < ROWS; row++)
             shipRow = row;
             shipColumn = column;
         }
+        if(gameObjects[row][column] === MONSTER){
+            monsterRow = row;
+            monsterColumn = column;
+        }
     }
 }
 
@@ -107,6 +114,7 @@ function keydownHandler(event)
                 gameObjects[shipRow][shipColumn] = 0;
                 shipRow--;
                 gameObjects[shipRow][shipColumn] = SHIP;
+                food--;
             }
         break;
 
@@ -115,6 +123,7 @@ function keydownHandler(event)
                 gameObjects[shipRow][shipColumn] = 0;
                 shipRow++;
                 gameObjects[shipRow][shipColumn] = SHIP;
+                food--;
             }
         break;
 
@@ -123,6 +132,7 @@ function keydownHandler(event)
                 gameObjects[shipRow][shipColumn] = 0;
                 shipColumn--;
                 gameObjects[shipRow][shipColumn] = SHIP;
+                food--;
             }
         break;
 
@@ -132,6 +142,7 @@ function keydownHandler(event)
                 gameObjects[shipRow][shipColumn] = 0;
                 shipColumn++;
                 gameObjects[shipRow][shipColumn] = SHIP;
+                food--;
             }
         break;
     }
@@ -156,8 +167,82 @@ function keydownHandler(event)
 
     }
 
+    moveMonster();
+
+    if(gameObjects[shipRow][shipColumn] === MONSTER)
+    {
+        endGame();
+    }
+    if(food <=0 || gold <=0)
+    {
+        endGame();
+    }
+
     render();
 }
+
+function moveMonster(){
+
+    var UP = 1;
+    var DOWN = 2;
+    var LEFT = 3;
+    var RIGHT = 4;
+
+    var validDirections = [];
+
+    var direction = undefined;
+
+    if(monsterRow > 0)
+    {
+        var thingAbove = map[monsterRow - 1][monsterColumn];
+        if (thingAbove === WATER) validDirections.push(UP); 
+    }
+    if(monsterRow < ROWS -1)
+    {
+        var thingBelow = map[monsterRow + 1][monsterColumn];
+        if (thingBelow === WATER) validDirections.push(DOWN); 
+    }
+     if(monsterColumn > 0)
+    {
+        var thingToTheLeft = map[monsterRow][monsterColumn - 1];
+        if (thingToTheLeft === WATER) validDirections.push(LEFT); 
+    }
+     if(monsterColumn < COLUMNS - 1)
+    {
+        var thingToTheRight = map[monsterRow][monsterColumn + 1];
+        if (thingToTheRight === WATER) validDirections.push(RIGHT); 
+    }
+
+    var randomNumber = Math.floor(Math.random() * validDirections.length);
+    direction = validDirections[randomNumber];
+
+    gameObjects[monsterRow][monsterColumn] = 0;
+
+    switch(direction)
+    {
+        case UP:
+            //monsterRow--;
+            gameObjects[--monsterRow][monsterColumn] = MONSTER;
+        break;
+
+        case DOWN:
+            //monsterRow++;
+            gameObjects[++monsterRow][monsterColumn] = MONSTER;
+        break;
+
+        case LEFT:
+            //monsterColumn--;
+            gameObjects[monsterRow][--monsterColumn] = MONSTER;
+        break;
+
+        case RIGHT:
+            //monsterColumn++;
+            gameObjects[monsterRow][++monsterColumn] = MONSTER;
+        break;
+    }
+
+}
+
 
 function fight(){
     var shipStrength = Math.ceil((food + gold) / 2);
@@ -211,7 +296,32 @@ function trade(){
 }
 
 function endGame(){
+    if(map[shipRow][shipColumn] === HOME)
+    {//Calculate the score
+        var score = food + gold+ experience;
 
+        gameMessage = "You made it home ALIVE! " + "Final score: " + score;
+    }
+    if(gameObjects[shipRow][shipColumn] === MONSTER)
+    {
+       gameMessage = "Your ship has been swallowed by a sea monster!";
+    }
+    else
+    {
+        if(gold <= 0)
+        {
+            gameMessage += " You've run out of gold!";
+        }
+        else
+        {
+            gameMessage += " You've run out of food!";   
+        }
+
+        gameMessage += " Your crew throws you overboard!";
+    }
+
+    //Remove the keyboard listener
+    window.removeEventListener("keydown", keydownHandler, false);
 }
 
 function render()
@@ -254,6 +364,9 @@ function render()
                 { 
                     case SHIP:
                         cell.src = "images/ship.png";
+                        break;
+                    case MONSTER:
+                        cell.src = "images/monster.png";
                         break;
                 }
 
