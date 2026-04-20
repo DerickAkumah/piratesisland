@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Island Adventure - Inicii</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2ecc71;
+            font-family: sans-serif;
+        }
+        .screen {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #1e8449;
+        }
+    </style>
+</head>
+<body>
+
+<div class="screen">
+    <h1>Island Adventure</h1>
+    <p>Akumah's Version</p>
+    <button onclick="startGame()">Start Game</button>
+</div>
+
+<script>
+function startGame(){
+    window.location.href = "pirate.html";
+}
+</script>
+
+</body>
+</html>
