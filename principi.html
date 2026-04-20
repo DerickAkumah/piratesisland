@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Island Adventure - Inicii</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url("images/fonsO1.gif");
+    background-size: cover;
+    background-position: center;
+    background-color: #1a2a1f;
+    font-family: 'Press Start 2P', cursive; /* Fuente pixelada */
+    overflow: hidden;
+}
+
+.screen {
+    text-align: center;
+    padding: 50px;
+    background: rgba(0, 0, 0, 0.85); /* Más oscuro para resaltar el texto */
+    
+    /* Borde doble estilo RPG clásico */
+    border: 4px solid #ffffff;
+    outline: 4px solid #2ecc71;
+    outline-offset: -12px;
+    
+    box-shadow: 0 0 0 8px rgba(0,0,0,0.5);
+    max-width: 600px;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 2.2rem; /* Ajustado para fuente pixel */
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    text-shadow: 4px 4px #27ae60;
+}
+
+p {
+    color: #2ecc71;
+    font-size: 0.8rem;
+    margin-bottom: 50px;
+    animation: flash 1.5s infinite; /* Animación de parpadeo */
+}
+
+/* Animación para el subtítulo */
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+button {
+    padding: 20px 40px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    
+    /* Efecto de sombra 3D rígida (estilo GameBoy/Arcade) */
+    box-shadow: 0 8px 0 #1e8449, 0 15px 20px rgba(0,0,0,0.5);
+    transition: all 0.1s;
+    position: relative;
+    outline: none;
+}
+
+button:hover {
+    background-color: #2ecc71;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 0 #27ae60, 0 20px 25px rgba(0,0,0,0.6);
+}
+
+button:active {
+    /* Al pulsar, el botón baja y desaparece la sombra (efecto click real) */
+    transform: translateY(6px);
+    box-shadow: 0 2px 0 #1e8449;
+}
+
+/* Añadir un pequeño cursor personalizado estilo puntero de juego */
+button, body {
+    cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
+}
+    </style>
+</head>
+<body>
+
+<div class="screen">
+    <h1>Island Adventure</h1>
+    <p>Akumah's Version</p>
+    <button onclick="startGame()">Start Game</button>
+</div>
+
+<script>
+function startGame(){
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
