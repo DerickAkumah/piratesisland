@@ -47,11 +47,12 @@
             width: 580px;
             margin-top: 20px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.7); /* Caja de texto semitransparente */
+            background: rgba(0, 0, 0, 0.8); /* Un poco más oscuro para que el blanco resalte */
             border-left: 5px solid #2ecc71;
             border-radius: 5px;
             font-size: 18px;
-            text-shadow: 1px 1px 2px black;
+            color: white; /* Letra blanca */
+            text-shadow: 1px 1px 3px rgba(0,0,0,1); /* Sombra para mejor lectura */
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
@@ -66,14 +67,27 @@
             font-weight: bold;
         }
         button, body {
-    cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
-        }   
+            cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
+        }
     </style>
 </head>
 <body>
 
 <div id="stage"></div>
 <p id="output"></p>
+
+<div id="marketOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: #2c3e50; padding: 40px; border: 4px solid #2ecc71; border-radius: 15px; text-align: center; color: white; max-width: 600px;">
+        <h2 style="color: #2ecc71; margin-top: 0; font-size: 32px;">🏝️ Mercado de la Isla</h2>
+        <p style="font-size: 18px; margin: 20px 0;">¿Cuánta comida quieres comprar?</p>
+        <p style="font-size: 16px; color: #bdc3c7; margin-bottom: 10px;">Tienes <strong style="color: #f1c40f; font-size: 20px;" id="marketGold">0</strong> monedas</p>
+        
+        <div id="marketButtons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 30px 0;">
+            </div>
+        
+        <button onclick="closeMarket()" style="padding: 10px 30px; background: #e74c3c; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;">Cerrar</button>
+    </div>
+</div>
 
 <script>
 var stage = document.querySelector("#stage");
@@ -89,6 +103,7 @@ var SHIP = 4;
 var MONSTER = 5;
 var GOKU = 6; 
 var GASOLINA = 7;
+var COIN = 8;
 
 var UP = 38;
 var DOWN = 40;
@@ -96,24 +111,24 @@ var RIGHT = 39;
 var LEFT = 37;
 
 var SIZE = 100; 
-var ROWS = 12;    // CAMBIO: 12 filas hacia abajo
-var COLUMNS = 15; // CAMBIO: 15 columnas hacia la banda
+var ROWS = 12;
+var COLUMNS = 15;
 var VIEW = 6;
 
 // MAPA AJUSTADO A 12x15
 var map = [
-    [0,1,0,0,0,0,2,0,0,0,0,0,0,0,0],
+    [0,1,0,0,0,0,8,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,1,0,3,0,0,0],
-    [0,0,2,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,8,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0,2,0,0,0,0,1,0],
-    [0,2,0,0,0,0,0,0,0,1,0,0,2,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // Meta (HOME) al final de la fila
-    [0,0,0,0,0,0,2,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,8,0,0,0,0,1,0],
+    [0,8,0,0,0,0,0,0,0,1,0,0,8,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,8,0,0,0,0,0,0,0,0],
     [0,0,1,0,0,0,0,0,0,0,0,0,1,0,0],
-    [0,0,0,0,0,2,0,0,0,0,0,0,0,0,2],
-    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0], // Gasolina añadida por aquí
-    [0,0,0,0,0,0,6,0,0,0,0,0,0,0,7]  // Goku al final
+    [0,0,0,0,0,8,0,0,0,0,0,0,0,0,8],
+    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,6,0,0,0,0,0,0,0,7]
 ];
 
 var monsterRow = 5;
@@ -123,14 +138,14 @@ var shipColumn = 0;
 
 var hasGasolina = false;
 
-// OBJETOS DEL JUEGO AJUSTADO A 12x15
+// OBJETOS DEL JUEGO
 var gameObjects = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,5,0,0,0,0,0,0,0,0,0], // Monstruo (5)
+    [0,0,0,0,0,5,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -139,11 +154,12 @@ var gameObjects = [
     [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ];
 
-var food = 10;
-var gold = 10;
-var experience = 0;
-var gameMessage = "Usa las flechas para llevar el balón a la portería.";
+var food = parseInt(localStorage.getItem('playerFood')) || 15;
+var gold = parseInt(localStorage.getItem('playerGold')) || 10;
+var experience = parseInt(localStorage.getItem('playerExp')) || 0;
+var gameMessage = "Usa las flechas para moverte. ¡Cada paso gasta energía!";
 var alive = true;
+var showMarket = false;
 
 render();
 
@@ -164,10 +180,23 @@ function keydownHandler(event) {
         return;
     }
 
+    // SI EL PERSONAJE SE MUEVE, CONSUMIR ENERGÍA
+    if(newRow !== shipRow || newColumn !== shipColumn) {
+        food--;
+    }
+
     gameObjects[shipRow][shipColumn] = 0;
     shipRow = newRow;
     shipColumn = newColumn;
     
+    // VERIFICAR DERROTA POR ENERGÍA ANTES DE SEGUIR
+    if(food <= 0) {
+        food = 0; // Para que no muestre números negativos
+        render();
+        endGame();
+        return;
+    }
+
     if(gameObjects[shipRow][shipColumn] === MONSTER) {
         endGame();
     } else {
@@ -175,8 +204,8 @@ function keydownHandler(event) {
 
         switch(map[shipRow][shipColumn]) {
             case WATER: gameMessage = "Navegas por campo abierto."; break;
-            case PIRATE: fight(); break;
-            case ISLAND: trade(); break;
+            case COIN: collectCoin(); break;
+            case ISLAND: showMarket = true; break;
             case GASOLINA: 
                 hasGasolina = true;
                 gameMessage = "¡Conseguiste la gasolina! Ahora puedes despegar.";
@@ -202,10 +231,6 @@ function keydownHandler(event) {
         if(gameObjects[shipRow][shipColumn] === MONSTER) {
             endGame();
         }
-    }
-
-    if(food <= 0 || gold <= 0) {
-        endGame();
     }
 
     render();
@@ -236,46 +261,25 @@ function moveMonster() {
     }
 }
 
-function fight() {
-    var shipStrength = Math.ceil((food + gold) / 2);
-    var pirateStrength = Math.ceil(Math.random() * shipStrength * 2);
-
-    if(pirateStrength > shipStrength) {
-        var stolenGold = Math.round(pirateStrength / 2);
-        experience += 1;
-        gameMessage = "¡Pierdes el balón! Te roban " + stolenGold + " monedas.";
-    } else {
-        var pirateGold = Math.round(pirateStrength / 2);
-        gold += pirateGold;
-        experience += 2;
-        gameMessage = "¡Regateas con éxito! Ganas " + pirateGold + " monedas.";
-    }
-}
-
-function trade() {
-    var islandFood = experience + gold;
-    var cost = Math.ceil(Math.random() * islandFood);
-
-    if(gold > cost) {
-        food += islandFood;
-        gold -= cost;
-        experience += 2;
-        gameMessage = "Compras " + islandFood + " de energía por " + cost + " monedas.";
-    } else {
-        experience += 1;
-        gameMessage = "No tienes suficiente oro para comprar energía.";
-    }
+function collectCoin() {
+    var coinAmount = Math.floor(Math.random() * 5) + 1;
+    gold += coinAmount;
+    gameMessage = "¡Recoges una moneda! Ganas " + coinAmount + " monedas.";
+    map[shipRow][shipColumn] = WATER;
+    experience += 1;
 }
 
 function endGame() {
     alive = false;
-    if(map[shipRow][shipColumn] === HOME) {
+    if(map[shipRow][shipColumn] === HOME && hasGasolina) {
         var score = food + gold + experience;
         gameMessage = "¡GOL! Has llegado a casa. Puntuación: " + score;
     } else if(gameObjects[shipRow][shipColumn] === MONSTER) {
-        gameMessage = "El ull tha pillat!";
+        gameMessage = "¡El ojo te ha atrapado!";
+    } else if(food <= 0) {
+        gameMessage = "¡Te has quedado sin energía! Game Over.";
     } else {
-        gameMessage = (gold <= 0) ? "¡Sin dinero!" : "¡Te has quedado sin energía!";
+        gameMessage = "Fin de la partida.";
     }
     window.removeEventListener("keydown", keydownHandler, false);
 }
@@ -287,8 +291,8 @@ function render() {
     var camColumn = shipColumn - Math.floor(VIEW / 2);
     camColumn = Math.max(0, Math.min(camColumn, COLUMNS - VIEW));
 
-    bgPosX = -camColumn * SIZE; 
-    bgPosY = -camRow * SIZE;
+    var bgPosX = -camColumn * SIZE; 
+    var bgPosY = -camRow * SIZE;
     stage.style.backgroundPosition = bgPosX + "px " + bgPosY + "px";
 
     stage.innerHTML = "";
@@ -305,7 +309,7 @@ function render() {
             switch(map[mr][mc]) {
                 case WATER: cell.src = "images/water2.png"; break;
                 case ISLAND: cell.src = "images/mercat.png"; break;
-                case PIRATE: cell.src = "images/monedes.png"; break;
+                case COIN: cell.src = "images/monedes.png"; break;
                 case HOME: cell.src = "images/helicoptero.png"; break;
                 case GASOLINA: cell.src = "images/gasolina.png"; break;
                 case GOKU: cell.src = "images/goku2.gif"; break; 
@@ -326,6 +330,73 @@ function render() {
     if(hasGasolina) {
         output.innerHTML += " | <strong>⛽ Gasolina: SÍ</strong>";
     }
+
+    if(showMarket) {
+        openMarket();
+        showMarket = false;
+    }
+}
+
+function openMarket() {
+    document.querySelector("#marketGold").textContent = gold;
+    var marketButtons = document.querySelector("#marketButtons");
+    marketButtons.innerHTML = "";
+
+    // Ofrecer opciones de compra basadas en el oro actual (máximo 10)
+    var maxToBuy = Math.min(10, gold);
+    if(maxToBuy <= 0) {
+        var msg = document.createElement("p");
+        msg.textContent = "No tienes monedas para comprar nada.";
+        marketButtons.appendChild(msg);
+    } else {
+        for(var i = 1; i <= maxToBuy; i++) {
+            var button = document.createElement("button");
+            button.textContent = i + " energía\n(" + i + " monedas)";
+            button.style.padding = "15px";
+            button.style.background = "#2ecc71";
+            button.style.color = "black";
+            button.style.border = "none";
+            button.style.borderRadius = "5px";
+            button.style.fontSize = "14px";
+            button.style.fontWeight = "bold";
+            button.style.cursor = "pointer";
+            button.style.transition = "all 0.3s";
+            button.style.whiteSpace = "pre-line";
+            button.onclick = (function(amount) {
+                return function() {
+                    buyFood(amount);
+                };
+            })(i);
+            button.onmouseover = function() {
+                this.style.background = "#27ae60";
+                this.style.transform = "scale(1.05)";
+            };
+            button.onmouseout = function() {
+                this.style.background = "#2ecc71";
+                this.style.transform = "scale(1)";
+            };
+            marketButtons.appendChild(button);
+        }
+    }
+
+    document.querySelector("#marketOverlay").style.display = "flex";
+    window.removeEventListener("keydown", keydownHandler, false);
+}
+
+function buyFood(amount) {
+    if(gold >= amount) {
+        food += amount;
+        gold -= amount;
+        experience += 1;
+        gameMessage = "Has recuperado " + amount + " de energía.";
+    }
+    closeMarket();
+}
+
+function closeMarket() {
+    document.querySelector("#marketOverlay").style.display = "none";
+    window.addEventListener("keydown", keydownHandler, false);
+    render();
 }
 </script>
 
