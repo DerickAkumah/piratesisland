@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Island Adventure - HARD Edition</title>
+    <!-- Importación de la fuente Pixel -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("images/lava.gif");
+            background-size: cover;    
+            background-position: center;
+            background-attachment: fixed; 
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 600px;
+            height: 600px;
+        }
+
+        #stage {
+            position: relative;
+            width: 600px; 
+            height: 600px;
+            background-image: url("images/fons dificil.png");
+            background-repeat: no-repeat;
+            background-size: 2500px 2000px; 
+            overflow: hidden;
+            border: 8px solid #3e2723; 
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.2);
+            image-rendering: pixelated; 
+        }
+
+        .cell {
+            display: block;
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            object-fit: contain; 
+        }
+
+        #output {
+            width: 580px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8); 
+            border-left: 5px solid #2ecc71;
+            border-radius: 5px;
+            font-size: 16px;
+            color: white; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,1); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        strong { color: #2ecc71; }
+        .gasolina-active { color: #f1c40f; text-shadow: 0 0 10px #f1c40f; font-weight: bold; }
+        .espada-active { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; font-weight: bold; }
+        .warning { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+        .danger { color: #ff6b6b; text-shadow: 0 0 10px #ff6b6b; font-weight: bold; }
+
+        button, body {
+            cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
+        }
+
+        #deathVideoContainer {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 10;
+        }
+
+        #deathVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Estilo actualizado basado en la imagen */
+        #gameOverBox {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            padding: 40px 20px;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.85);
+            border: 6px solid #ffffff;
+            outline: 6px solid #2ecc71; /* Color verde como la imagen */
+            outline-offset: -15px;
+            box-shadow: 0 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        #gameOverBox h2 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            margin: 0 0 25px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #gameOverBox p { 
+            color: #2ecc71; 
+            font-size: 0.7rem; 
+            margin-bottom: 15px; 
+            line-height: 1.8; 
+            text-transform: uppercase;
+        }
+
+        #restartBtn {
+            margin-top: 25px;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: 4px solid #1e8449;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        #restartBtn:hover {
+            transform: scale(1.05);
+            background-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div id="stage"></div>
+
+    <div id="deathVideoContainer">
+        <video id="deathVideo">
+            <source id="videoSource" src="" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="gameOverBox">
+        <h2>GAME OVER</h2>
+        <p id="gameOverReason"></p>
+        <p id="gameOverScore"></p>
+        <button id="restartBtn" onclick="location.reload()">VOLVER A JUGAR</button>
+    </div>
+</div>
+
+<p id="output"></p>
+
+<script>
+var stage = document.querySelector("#stage");
+var output = document.querySelector("#output");
+var deathVideoContainer = document.querySelector("#deathVideoContainer");
+var deathVideo = document.querySelector("#deathVideo");
+var videoSource = document.querySelector("#videoSource");
+var gameOverBox = document.querySelector("#gameOverBox");
+var gameOverReason = document.querySelector("#gameOverReason");
+var gameOverScore = document.querySelector("#gameOverScore");
+
+window.addEventListener("keydown", keydownHandler, false);
+
+var WATER = 0;
+var ISLAND = 1;
+var PIRATE = 2;
+var HOME = 3;
+var SHIP = 4;
+var MONSTER = 5;
+var PORTAL = 6; 
+var GASOLINA = 7;
+var COIN = 8;
+var QUICKSAND = 9;
+var VORTEX = 10;
+
+var UP = 38;
+var DOWN = 40;
+var RIGHT = 39;
+var LEFT = 37;
+
+var SIZE = 100; 
+var ROWS = 20;
+var COLUMNS = 25;
+var VIEW = 6;
+
+var map = [
+    [0,9,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,9,0,0,0,0,1,0,3,0,0,0,0,0,9,0,0,0,0,0,0,0],
+    [0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,9,0,0,9,0,0,0,0,0,0,0,0,0,1,0,0,9,9,0,0,0],
+    [0,0,0,0,1,0,0,0,8,0,0,0,0,1,0,0,0,0,0,9,9,9,0,0,0],
+    [0,8,0,0,0,0,0,0,0,1,0,0,8,0,0,0,0,1,0,0,9,9,0,9,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,9,0,0,0,8,0,0,8,0,0,0,0,9,0,0,0,0,0,1,0,0,0,0],
+    [0,0,0,0,9,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,8,0],
+    [0,0,9,0,0,8,0,0,0,0,0,0,0,0,0,9,9,1,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,9,9,9,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,8,0,0,0,0,0,0,9,9,0,0,0,0,0,0,0,0,7],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,8,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8,0,0,0,0,0,0,0,0],
+    [9,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0],
+    [0,0,0,0,8,0,1,0,0,9,0,0,0,0,0,0,0,0,9,9,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,9,0,0,0,8,0,0,0],
+    [0,0,0,0,0,0,0,8,0,0,0,9,0,0,0,8,0,0,9,0,0,0,0,0,0]
+];
+
+var vortexes = [
+    {row: 2, col: 12}, {row: 6, col: 18}, {row: 12, col: 5}, {row: 15, col: 15}, {row: 17, col: 20}
+];
+
+for(var i = 0; i < vortexes.length; i++) {
+    map[vortexes[i].row][vortexes[i].col] = VORTEX;
+}
+
+var monsters = [
+    {row: 5, col: 5}, {row: 8, col: 10}, {row: 3, col: 15}, {row: 12, col: 8}, {row: 15, col: 12},
+    {row: 2, col: 20}, {row: 10, col: 3}, {row: 18, col: 18}, {row: 6, col: 22}, {row: 14, col: 6}
+];
+
+var shipRow = 19;
+var shipColumn = 0;
+var hasGasolina = false;
+var hasSword = false;
+var swordDurability = 100;
+var gasExpireTimer = 50;
+
+var gameObjects = [];
+for(var i = 0; i < ROWS; i++) {
+    gameObjects[i] = [];
+    for(var j = 0; j < COLUMNS; j++) { gameObjects[i][j] = 0; }
+}
+
+for(var i = 0; i < monsters.length; i++) {
+    gameObjects[monsters[i].row][monsters[i].col] = MONSTER;
+}
+gameObjects[shipRow][shipColumn] = SHIP;
+
+var food = 50;
+var gold = 30;
+var experience = 0;
+var gameMessage = "Fes servir les fleches per mouret. ¡Recull la gasolina i escapa!";
+var alive = true;
+var moveCount = 0;
+var monsterSpeedMultiplier = 1;
+var swordBreakChance = 0.2;
+var maxMonsters = 15;
+
+render();
+
+function keydownHandler(event) {
+    if(!alive) return;
+
+    var newRow = shipRow;
+    var newColumn = shipColumn;
+
+    switch(event.keyCode) {
+        case UP:    newRow--; break;
+        case DOWN:  newRow++; break;
+        case LEFT:  newColumn--; break;
+        case RIGHT: newColumn++; break;
+    }
+
+    if(newRow < 0 || newRow >= ROWS || newColumn < 0 || newColumn >= COLUMNS) return;
+
+    var energyCost = 1;
+    if(map[newRow][newColumn] === ISLAND) energyCost = 2;
+    else if(map[newRow][newColumn] === QUICKSAND) energyCost = 3;
+    else if(map[newRow][newColumn] === VORTEX) energyCost = 4;
+    
+    food -= energyCost;
+    moveCount++;
+    if(hasGasolina) gasExpireTimer--;
+    
+    if(food <= 0) {
+        food = 0; render(); endGame(); 
+        playDeathVideo("HAS MORT PER CANSANCI", "images/cansatu.mp4");
+        return;
+    }
+
+    if(hasGasolina && gasExpireTimer <= 0) {
+        hasGasolina = false;
+        gameMessage = "¡La gasolina ha expirat! S'ha evaporat.";
+    }
+
+    if(gameObjects[newRow][newColumn] === MONSTER) {
+        if(hasSword) {
+            var resultado = combatRound();
+            gameMessage = resultado.message;
+            if(resultado.monsterDead) {
+                removeMonsterAt(newRow, newColumn);
+                experience += 5;
+                gameObjects[shipRow][shipColumn] = 0;
+                shipRow = newRow;
+                shipColumn = newColumn;
+                gameObjects[shipRow][shipColumn] = SHIP;
+            }
+        } else {
+            endGame();
+            playDeathVideo("¡Un ull t'ha atrapat!", "images/ullmatad.mp4");
+            return;
+        }
+    } else {
+        gameObjects[shipRow][shipColumn] = 0;
+        shipRow = newRow;
+        shipColumn = newColumn;
+
+        if(map[shipRow][shipColumn] === VORTEX) {
+            var teleRow = Math.floor(Math.random() * ROWS);
+            var teleCol = Math.floor(Math.random() * COLUMNS);
+            while(map[teleRow][teleCol] === ISLAND || map[teleRow][teleCol] === VORTEX || map[teleRow][teleCol] === QUICKSAND) {
+                teleRow = Math.floor(Math.random() * ROWS);
+                teleCol = Math.floor(Math.random() * COLUMNS);
+            }
+            shipRow = teleRow;
+            shipColumn = teleCol;
+            gameMessage = "¡Caigueres en un vortex! ¡Et teletransportuen!";
+            food -= 5;
+        }
+
+        gameObjects[shipRow][shipColumn] = SHIP;
+
+        switch(map[shipRow][shipColumn]) {
+            case WATER: gameMessage = "Navegues per camp obert."; break;
+            case COIN: collectCoin(); break;
+            case ISLAND: handleIsland(); break;
+            case GASOLINA: 
+                hasGasolina = true; gasExpireTimer = 50;
+                gameMessage = "¡Aconseguires la gasolina! Tens 50 moviments per escapar.";
+                map[shipRow][shipColumn] = WATER;
+                break;
+            case HOME: 
+                if(hasGasolina) {
+                    endGame();
+                    window.location.href = "video final.html"; 
+                    return;
+                } else { gameMessage = "¡No tens gasolina! No pots despegar."; }
+                break;
+            case QUICKSAND: 
+                gameMessage = "¡Trepitges les pedres! Perds moviment i energía.";
+                food -= 2;
+                break;
+        }
+    }
+
+    moveAllMonsters();
+    moveAllVortexes();
+
+    if(gameObjects[shipRow][shipColumn] === MONSTER && !hasSword) {
+        endGame();
+        playDeathVideo("¡Un ull t'ha atrapat!", "images/ullmatad.mp4");
+        return;
+    }
+
+    if(moveCount % 30 === 0 && monsters.length < maxMonsters) spawnNewMonster();
+    if(moveCount % 12 === 0) removeOldCoins();
+    if(moveCount % 25 === 0 && monsterSpeedMultiplier < 3) monsterSpeedMultiplier += 0.15;
+
+    render();
+}
+
+function combatRound() {
+    var killChance = Math.random();
+    if(killChance < 0.7) {
+        if(Math.random() < swordBreakChance) {
+            hasSword = false; swordDurability = 0;
+            return { message: "¡ATACAS l'ull! ¡Però l'espasa es trenca en l'impacte!", monsterDead: true };
+        } else {
+            return { message: "¡ATACAS l'ull amb l'espasa! ¡Eliminat!", monsterDead: true };
+        }
+    } else {
+        return { message: "¡L'ull esquiva el teu atac!", monsterDead: false };
+    }
+}
+
+function handleIsland() {
+    gameMessage = "¡Estás en un mercat! ";
+    if(gold > 0) {
+        if(!hasSword) {
+            if(gold >= 20) {
+                gameMessage += "Prem E per a l'ESPASA (20) o C per a la COMIDA.";
+                var tempKeyListener = function(e) {
+                    if(e.key.toLowerCase() === 'e') {
+                        hasSword = true; gold -= 20; gameMessage = "¡Compres una ESPASA! 🗡️";
+                        finishIsland(tempKeyListener);
+                    } else if(e.key.toLowerCase() === 'c') {
+                        food += gold; gameMessage = "¡Compres comida!"; gold = 0;
+                        finishIsland(tempKeyListener);
+                    }
+                };
+                window.removeEventListener("keydown", keydownHandler);
+                window.addEventListener("keydown", tempKeyListener);
+            } else {
+                food += gold; gameMessage += "¡Compres comida!"; gold = 0;
+            }
+        } else {
+            food += gold; gameMessage += "¡Compres comida!"; gold = 0;
+        }
+    } else { gameMessage += "No tens monedes."; }
+}
+
+function finishIsland(listener) {
+    experience += 1;
+    window.removeEventListener("keydown", listener);
+    window.addEventListener("keydown", keydownHandler, false);
+    render();
+}
+
+function collectCoin() {
+    var coinAmount = Math.floor(Math.random() * 7) + 1;
+    gold += coinAmount;
+    gameMessage = "¡Reculls una moneda! Guanyes " + coinAmount + ".";
+    map[shipRow][shipColumn] = WATER;
+    experience += 1;
+}
+
+function spawnNewMonster() {
+    var newRow, newCol, attempts = 0;
+    do {
+        newRow = Math.floor(Math.random() * ROWS);
+        newCol = Math.floor(Math.random() * COLUMNS);
+        attempts++;
+    } while((map[newRow][newCol] !== WATER) && attempts < 10);
+    if(attempts < 10) {
+        monsters.push({row: newRow, col: newCol});
+        gameObjects[newRow][newCol] = MONSTER;
+    }
+}
+
+function removeOldCoins() {
+    for(var r = 0; r < ROWS; r++) {
+        for(var c = 0; c < COLUMNS; c++) {
+            if(map[r][c] === COIN && Math.random() < 0.25) map[r][c] = WATER;
+        }
+    }
+}
+
+function moveAllMonsters() { for(var i = 0; i < monsters.length; i++) moveMonsterRandom(i); }
+function moveMonsterRandom(idx) {
+    var m = monsters[idx];
+    if(moveCount % Math.max(1, Math.floor(3 - monsterSpeedMultiplier)) !== 0) return;
+    var dirs = [];
+    if(m.row > 0 && map[m.row-1][m.col] === WATER && gameObjects[m.row-1][m.col] === 0) dirs.push({r:-1, c:0});
+    if(m.row < ROWS-1 && map[m.row+1][m.col] === WATER && gameObjects[m.row+1][m.col] === 0) dirs.push({r:1, c:0});
+    if(m.col > 0 && map[m.row][m.col-1] === WATER && gameObjects[m.row][m.col-1] === 0) dirs.push({r:0, c:-1});
+    if(m.col < COLUMNS-1 && map[m.row][m.col+1] === WATER && gameObjects[m.row][m.col+1] === 0) dirs.push({r:0, c:1});
+    if(dirs.length > 0) {
+        var d = dirs[Math.floor(Math.random()*dirs.length)];
+        gameObjects[m.row][m.col] = 0; m.row += d.r; m.col += d.c; gameObjects[m.row][m.col] = MONSTER;
+    }
+}
+
+function moveAllVortexes() { for(var i = 0; i < vortexes.length; i++) moveVortexRandom(i); }
+function moveVortexRandom(idx) {
+    var v = vortexes[idx];
+    if(moveCount % 2 !== 0) return;
+    var dirs = [];
+    if(v.row > 0 && map[v.row-1][v.col] === WATER) dirs.push({r:-1, c:0});
+    if(v.row < ROWS-1 && map[v.row+1][v.col] === WATER) dirs.push({r:1, c:0});
+    if(v.col > 0 && map[v.row][v.col-1] === WATER) dirs.push({r:0, c:-1});
+    if(v.col < COLUMNS-1 && map[v.row][v.col+1] === WATER) dirs.push({r:0, c:1});
+    if(dirs.length > 0) {
+        var d = dirs[Math.floor(Math.random()*dirs.length)];
+        map[v.row][v.col] = WATER; v.row += d.r; v.col += d.c; map[v.row][v.col] = VORTEX;
+    }
+}
+
+function removeMonsterAt(row, col) {
+    for(var i = 0; i < monsters.length; i++) {
+        if(monsters[i].row === row && monsters[i].col === col) {
+            gameObjects[row][col] = 0; monsters.splice(i, 1); break;
+        }
+    }
+}
+
+// Función de muerte actualizada
+function playDeathVideo(reason, videoPath) {
+    videoSource.src = videoPath;
+    deathVideo.load();
+    deathVideoContainer.style.display = "block";
+    deathVideo.play();
+    
+    deathVideo.onended = function() {
+        gameOverReason.innerHTML = reason;
+        gameOverScore.innerHTML = "PUNTUACIO FINAL: " + (gold + experience);
+        gameOverBox.style.display = "block";
+    };
+}
+
+function endGame() {
+    alive = false;
+    window.removeEventListener("keydown", keydownHandler, false);
+}
+
+function render() {
+    var camRow = Math.max(0, Math.min(shipRow - Math.floor(VIEW / 2), ROWS - VIEW));
+    var camColumn = Math.max(0, Math.min(shipColumn - Math.floor(VIEW / 2), COLUMNS - VIEW));
+    stage.style.backgroundPosition = (-camColumn * SIZE) + "px " + (-camRow * SIZE) + "px";
+    stage.innerHTML = "";
+
+    for(var row = 0; row < VIEW; row++) {
+        for(var column = 0; column < VIEW; column++) {
+            var mr = camRow + row, mc = camColumn + column;
+            var cell = document.createElement("img");
+            cell.className = "cell";
+            stage.appendChild(cell);
+            switch(map[mr][mc]) {
+                case WATER: cell.src = "images/water2.png"; break;
+                case ISLAND: cell.src = "images/mercat.png"; break;
+                case COIN: cell.src = "images/monedes.png"; break;
+                case HOME: cell.src = "images/helicoptero.png"; break;
+                case GASOLINA: cell.src = "images/gasolina.png"; break;
+                case PORTAL: cell.src = "images/portal.gif"; break;
+                case QUICKSAND: cell.src = "images/pedra.png"; cell.style.opacity = "0.3"; break;
+                case VORTEX: cell.src = "images/tornado.png"; break;
+            }
+            switch(gameObjects[mr][mc]) {
+                case SHIP: cell.src = "images/akumah2.png"; cell.style.opacity = "1"; break;
+                case MONSTER: cell.src = "images/ull.png"; break;
+            }
+            cell.style.top = (row * SIZE) + "px";
+            cell.style.left = (column * SIZE) + "px";
+        }
+    }
+
+    output.innerHTML = gameMessage + "<br><strong>Or:</strong> " + gold + " | <strong>Energía:</strong> " + food + " | <strong>Exp:</strong> " + experience;
+    output.innerHTML += hasSword ? " | <span class='espada-active'>🗡️ Espasa: OK</span>" : " | <span class='warning'>🗡️ Espasa: NO</span>";
+    if(hasGasolina) {
+        output.innerHTML += " | <span class='gasolina-active'>⛽ Gasolina: SÍ</span> " + (gasExpireTimer < 30 ? "<span class='danger'>(⏰" + gasExpireTimer + ")</span>" : "");
+    }
+}
+</script>
+</body>
+</html>

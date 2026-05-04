@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Island Adventure - INVINCIBLE Edition</title>
+    <style>
+        body {
+            background-image: url("images/fonsO1.gif");
+            background-size: cover;    
+            background-position: center;
+            background-attachment: fixed; 
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+        #stage {
+            position: relative;
+            width: 600px; 
+            height: 600px;
+            background-image: url("images/f.jpg");
+            background-repeat: no-repeat;
+            background-size: 1500px 1200px; 
+            overflow: hidden;
+            
+            border: 8px solid #3e2723; 
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.2);
+            image-rendering: pixelated; 
+        }
+
+        .cell {
+            display: block;
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            object-fit: contain; 
+        }
+
+        #output {
+            width: 580px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.8); 
+            border-left: 5px solid #2ecc71;
+            border-radius: 5px;
+            font-size: 18px;
+            color: white; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,1); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        strong {
+            color: #2ecc71;
+        }
+
+        button, body {
+            cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
+        }
+    </style>
+</head>
+<body>
+
+<div id="stage"></div>
+<p id="output"></p>
+
+<script>
+var stage = document.querySelector("#stage");
+var output = document.querySelector("#output");
+
+window.addEventListener("keydown", keydownHandler, false);
+
+var WATER = 0;
+var ISLAND = 1;
+var PIRATE = 2;
+var HOME = 3;
+var SHIP = 4;
+var MONSTER = 5;
+var GOKU = 6; 
+var GASOLINA = 7;
+var COIN = 8;
+
+var UP = 38;
+var DOWN = 40;
+var RIGHT = 39;
+var LEFT = 37;
+
+var SIZE = 100; 
+var ROWS = 12;
+var COLUMNS = 15;
+var VIEW = 6;
+
+var map = [
+    [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,1,0,3,0,0,0],
+    [0,0,8,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,8,0,0,0,0,1,0],
+    [0,8,0,0,0,0,0,0,0,1,0,0,8,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,8,0,0,0,0,0,0,0,0],
+    [0,0,1,0,0,0,0,0,0,0,0,0,1,0,0],
+    [0,0,0,0,0,8,0,0,0,0,0,0,0,0,8],
+    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,7]
+];
+
+var monsterRow = 5;
+var monsterColumn = 5;
+var shipRow = 11;
+var shipColumn = 0;
+
+var hasGasolina = false;
+
+var gameObjects = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,5,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+];
+
+var food = 20;
+var gold = parseInt(localStorage.getItem('playerGold')) || 10;
+var experience = 0;
+var gameMessage = "¡Mode pràctica activat! Explora sense por.";
+var alive = true;
+
+render();
+
+function keydownHandler(event) {
+    if(!alive) return;
+
+    var newRow = shipRow;
+    var newColumn = shipColumn;
+
+    switch(event.keyCode) {
+        case UP:    newRow--; break;
+        case DOWN:  newRow++; break;
+        case LEFT:  newColumn--; break;
+        case RIGHT: newColumn++; break;
+    }
+
+    if(newRow < 0 || newRow >= ROWS || newColumn < 0 || newColumn >= COLUMNS) {
+        return;
+    }
+
+    // Eliminamos el consumo de energía (food--)
+    
+    gameObjects[shipRow][shipColumn] = 0;
+    shipRow = newRow;
+    shipColumn = newColumn;
+    
+    // El monstruo ya no puede matarte aquí
+    if(gameObjects[shipRow][shipColumn] === MONSTER) {
+        gameMessage = "El ojo te observa, pero no puede tocarte.";
+    }
+
+    gameObjects[shipRow][shipColumn] = SHIP;
+
+    switch(map[shipRow][shipColumn]) {
+        case WATER: gameMessage = "Navegando seguro."; break;
+        case COIN: collectCoin(); break;
+        case ISLAND: buyEnergyWithGold(); break;
+        case GASOLINA: 
+            hasGasolina = true;
+            gameMessage = "¡Gasolina en mano! Al helicóptero.";
+            map[shipRow][shipColumn] = WATER;
+            break;
+        case HOME: 
+            if(hasGasolina) {
+                endGame();
+            window.location.href = "video bebe.html"; 
+
+                return;
+            } else {
+                gameMessage = "Sin gasolina no hay escape.";
+            }
+            break;
+        case GOKU: 
+            window.location.href = "video.html"; 
+            return;
+    }
+
+    moveMonster();
+    // No verificamos colisión después del movimiento del monstruo para no morir
+    
+    render();
+}
+
+function moveMonster() {
+    var M_UP = 1, M_DOWN = 2, M_LEFT = 3, M_RIGHT = 4;
+    var validDirections = [];
+
+    if(monsterRow > 0 && map[monsterRow - 1][monsterColumn] === WATER) validDirections.push(M_UP);
+    if(monsterRow < ROWS - 1 && map[monsterRow + 1][monsterColumn] === WATER) validDirections.push(M_DOWN);
+    if(monsterColumn > 0 && map[monsterRow][monsterColumn - 1] === WATER) validDirections.push(M_LEFT);
+    if(monsterColumn < COLUMNS - 1 && map[monsterRow][monsterColumn + 1] === WATER) validDirections.push(M_RIGHT);
+
+    if(validDirections.length > 0) {
+        var randomNumber = Math.floor(Math.random() * validDirections.length);
+        var direction = validDirections[randomNumber];
+
+        // Solo borramos la posición del monstruo si no está el jugador ahí
+        if(gameObjects[monsterRow][monsterColumn] === MONSTER) {
+            gameObjects[monsterRow][monsterColumn] = 0;
+        }
+
+        switch(direction) {
+            case M_UP:    monsterRow--; break;
+            case M_DOWN:  monsterRow++; break;
+            case M_LEFT:  monsterColumn--; break;
+            case M_RIGHT: monsterColumn++; break;
+        }
+        
+        // El monstruo solo se dibuja si el jugador no está en esa celda
+        if(gameObjects[monsterRow][monsterColumn] !== SHIP) {
+            gameObjects[monsterRow][monsterColumn] = MONSTER;
+        }
+    }
+}
+
+function collectCoin() {
+    var coinAmount = Math.floor(Math.random() * 7) + 1;
+    gold += coinAmount;
+    gameMessage = "¡Monedas! + " + coinAmount;
+    map[shipRow][shipColumn] = WATER;
+    experience += 1;
+}
+
+function buyEnergyWithGold() {
+    if(gold > 0) {
+        food += gold;
+        gameMessage = "Energía extra comprada.";
+        experience += 3;
+        gold = 0;
+    } else {
+        gameMessage = "Isla visitada.";
+    }
+}
+
+function endGame() {
+    if(map[shipRow][shipColumn] === HOME && hasGasolina) {
+        alive = false;
+        var score = food + gold + experience;
+        gameMessage = "¡VICTORIA! Puntuación: " + score;
+        window.removeEventListener("keydown", keydownHandler, false);
+    }
+    // Las condiciones de muerte por energía o monstruo han sido eliminadas
+}
+
+function render() {
+    var camRow = shipRow - Math.floor(VIEW / 2);
+    camRow = Math.max(0, Math.min(camRow, ROWS - VIEW));
+
+    var camColumn = shipColumn - Math.floor(VIEW / 2);
+    camColumn = Math.max(0, Math.min(camColumn, COLUMNS - VIEW));
+
+    var bgPosX = -camColumn * SIZE; 
+    var bgPosY = -camRow * SIZE;
+    stage.style.backgroundPosition = bgPosX + "px " + bgPosY + "px";
+
+    stage.innerHTML = "";
+
+    for(var row = 0; row < VIEW; row++) {
+        for(var column = 0; column < VIEW; column++) {
+            var mr = camRow + row;
+            var mc = camColumn + column;
+
+            var cell = document.createElement("img");
+            cell.setAttribute("class", "cell");
+            stage.appendChild(cell);
+
+            switch(map[mr][mc]) {
+                case WATER: cell.src = "images/water2.png"; break;
+                case ISLAND: cell.src = "images/mercat.png"; break;
+                case COIN: cell.src = "images/monedes.png"; break;
+                case HOME: cell.src = "images/helicoptero.png"; break;
+                case GASOLINA: cell.src = "images/gasolina.png"; break;
+                case GOKU: cell.src = "images/goku2.gif"; break; 
+            }
+
+            switch(gameObjects[mr][mc]) {
+                case SHIP: cell.src = "images/akumahb.png"; break;
+                case MONSTER: cell.src = "images/ullb.png"; break;
+            }
+
+            cell.style.top = row * SIZE + "px";
+            cell.style.left = column * SIZE + "px";
+        }
+    }
+
+    output.innerHTML = gameMessage;
+    output.innerHTML += "<br><strong>Oro:</strong> " + gold + " | <strong>Energía:</strong> ∞ | <strong>Exp:</strong> " + experience;
+    if(hasGasolina) {
+        output.innerHTML += " | <strong>⛽ Gasolina: OK</strong>";
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Island Adventure - Hard Menu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /* ANIMACIÓ DEL MENÚ */
+        @keyframes flotarMenu {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes dashMove {
+            to { stroke-dashoffset: -20; }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            background-image: url("images/lava.gif");
+            background-size: cover;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid #ff4444;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+            animation: flotarMenu 4s ease-in-out infinite;
+        }
+
+        h2 { 
+            color: #ffffff; 
+            font-size: 1.8rem; 
+            margin-bottom: 30px;
+            text-shadow: 4px 4px #880000;
+        }
+
+        .instructions-wrapper {
+            position: relative;
+            margin-bottom: 40px;
+            padding: 2px;
+        }
+
+        .instructions-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .instructions-border rect {
+            fill: none;
+            stroke: #ff4444;
+            stroke-width: 3;
+            stroke-dasharray: 8, 8;
+            animation: dashMove 0.8s linear infinite;
+        }
+
+        .instructions-content {
+            text-align: left;
+            background: rgba(255, 0, 0, 0.15);
+            padding: 25px;
+            font-size: 0.65rem;
+            line-height: 1.7;
+            color: #f0f0f0;
+        }
+
+        .instructions-content h3 { 
+            color: #ff4444; 
+            margin-top: 0; 
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .instructions-content ul {
+            list-style-type: "⚠ ";
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .btn-mode {
+            padding: 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.1s;
+            width: 100%;
+            background-color: #c0392b;
+            color: white;
+            box-shadow: 0 8px 0 #7e261d;
+            letter-spacing: 2px;
+        }
+
+        .btn-mode:hover { 
+            transform: scale(1.02);
+            filter: brightness(1.2);
+        }
+
+        .btn-mode:active { 
+            transform: translateY(6px); 
+            box-shadow: 0 2px 0 #7e261d; 
+        }
+
+        .btn-mode span {
+            display: block;
+            font-size: 0.5rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            color: #ffcccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>HARD MODE</h2>
+
+        <div class="instructions-wrapper">
+            <svg class="instructions-border">
+                <rect x="0" y="0" width="100%" height="100%" />
+            </svg>
+            
+            <div class="instructions-content">
+                <h3>SOBREVIU A L'INFERN:</h3>
+                <ul>
+                    <li><b>MOVIMENT:</b> Les fletxes costen energia hi han pedres que et treuen energia.</li>
+                    <li><b>COMBAT:</b> Necessites una <b>ESPASA</b> per vèncer els ulls. Si no en tens, estas mort.</li>
+                    <li><b>MERCAT:</b> Visita les illes per comprar espases o menjar amb el teu or.</li>
+                    <li><b>VÒRTEXS:</b> Els tornados et teletransportaran a l'atzar i et trauran energia.</li>
+                    <li><b>GASOLINA:</b> Un cop la tinguis, l'oxigen la volatilitza! Tens moviments limitats per arribar a l'helicòpter.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mode-selection">
+            <button class="btn-mode" onclick="window.location.href='nivell dificil.html'">
+                COMENÇAR REPTE
+                <span>Entrar al nivell difícil</span>
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Island Adventure - Menu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /* ANIMACIÓ DEL MENÚ COMPLET (Flotar) */
+        @keyframes flotarMenu {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* ANIMACIÓ DE LES LÍNIES INTERNES */
+        @keyframes dashMove {
+            to { stroke-dashoffset: -20; }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a2a1f;
+            background-image: url("images/fonsO1.gif");
+            background-size: cover;
+            background-position: center;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* EL QUADRE PRINCIPAL AMB ANIMACIÓ */
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid #2ecc71;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+            position: relative;
+            
+            /* APLICACIÓ DEL MOVIMENT AL QUADRE */
+            animation: flotarMenu 4s ease-in-out infinite;
+        }
+
+        h2 { 
+            color: #ffffff; 
+            font-size: 1.8rem; 
+            margin-bottom: 30px;
+            text-shadow: 3px 3px #27ae60;
+        }
+
+        /* BLOC D'INSTRUCCIONS AMB BORDES ANIMATS */
+        .instructions-wrapper {
+            position: relative;
+            margin-bottom: 40px;
+            padding: 2px;
+        }
+
+        .instructions-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .instructions-border rect {
+            fill: none;
+            stroke: #2ecc71;
+            stroke-width: 3;
+            stroke-dasharray: 8, 8;
+            animation: dashMove 0.8s linear infinite;
+        }
+
+        .instructions-content {
+            text-align: left;
+            background: rgba(46, 204, 113, 0.08);
+            padding: 25px;
+            font-size: 0.7rem;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .instructions-content h3 { 
+            color: #2ecc71; 
+            margin-top: 0; 
+            text-align: center;
+            margin-bottom: 15px;
+            text-decoration: underline;
+        }
+
+        .instructions-content ul {
+            list-style-type: "» ";
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        /* BOTONS */
+        .mode-selection {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-mode {
+            padding: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.1s;
+            width: 280px;
+        }
+
+        .normal {
+            background-color: #27ae60;
+            color: white;
+            box-shadow: 0 6px 0 #1e8449;
+        }
+
+        .practice {
+            background-color: #9b59b6;
+            color: white;
+            box-shadow: 0 6px 0 #7d3c98;
+        }
+
+        .btn-mode:hover { 
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .btn-mode:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5); 
+        }
+
+        .btn-mode span {
+            display: block;
+            font-size: 0.5rem;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>GAME MENU</h2>
+
+        <div class="instructions-wrapper">
+            <svg class="instructions-border">
+                <rect x="0" y="0" width="100%" height="100%" />
+            </svg>
+            
+            <div class="instructions-content">
+                <h3>INSTRUCTIONS:</h3>
+                <ul>
+                    <li>Fes serir les fletxes del teclat per mouret.</li>
+                    <li>Recull les monedes per poder comprar energía.</li>
+                    <li>¡No deixis que l'ull tatrapi!</li>
+                    <li>Vigila no et quedis sense energía.</li>
+                    <li>Troba la gasolina y escapa en el helicopter. Putser et trobes alguna sorpresa...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mode-selection">
+            <button class="btn-mode normal" onclick="window.location.href='index.html'">
+                NORMAL
+                <span>Repte estándar</span>
+            </button>
+
+            <button class="btn-mode practice" onclick="window.location.href='practica.html'">
+                 PRÁCTICA
+                <span>Vides infinites</span>
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

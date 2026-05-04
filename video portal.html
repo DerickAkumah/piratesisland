@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Especial</title>
+    <!-- Importamos la fuente Pixel para que los estilos funcionen -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evita scrolls */
+            background-color: black; /* Fondo negro absoluto */
+            font-family: 'Press Start 2P', cursive; /* Fuente por defecto */
+        }
+
+        /* Contenedor negro absoluto para el video */
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Video que escala sin cortarse (contain) */
+        #video-background {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* SE VE TODO EL VIDEO, SIN CORTARSE */
+        }
+
+        /* --- CUADRO ESTILO RETRO (Adaptado de tus estilos) --- */
+        #endScreenBox {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: none; /* Se activará con JS */
+            text-align: center;
+            
+            /* Fondo oscuro translúcido para el cuadro */
+            background-color: rgba(10, 10, 10, 0.9); 
+            padding: 40px;
+            border-radius: 5px; /* Bordes menos redondeados para el estilo retro */
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.5); /* Sombra verde */
+            border: 4px solid #27ae60; /* Borde verde */
+            width: 80%;
+            max-width: 600px;
+        }
+
+        #endScreenBox h2 {
+            color: #ffffff;
+            font-size: 1.5rem; /* Ajustado para Press Start 2P */
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            /* Sombra de texto verde */
+            text-shadow: 3px 3px #27ae60; 
+            line-height: 1.3;
+        }
+
+        #endScreenBox p {
+            color: #2ecc71; /* Texto verde */
+            font-size: 0.8rem; /* Pequeño para esta fuente */
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-transform: uppercase;
+        }
+
+        /* --- BOTONES ESTILO RETRO (Basados en restartBtn) --- */
+        .retroBtn {
+            margin: 10px; /* Espacio entre botones */
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px; /* Un poco más pequeño para que quepan dos */
+            cursor: pointer;
+            color: white;
+            border: none;
+            text-transform: uppercase;
+            /* Sombra inferior 3D del botón */
+            box-shadow: 0 6px 0 #1e8449, 0 10px 15px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+            outline: none;
+            display: inline-block;
+            text-decoration: none; /* Para los enlaces <a> */
+        }
+
+        /* Variación para el botón principal (Verde) */
+        .btn-green {
+            background-color: #27ae60;
+        }
+
+        .btn-green:hover {
+            background-color: #2ecc71; /* Verde más claro */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #27ae60, 0 12px 18px rgba(0,0,0,0.6);
+        }
+
+        /* Variación para el botón de menú (Gris oscuro) */
+        .btn-gray {
+            background-color: #34495e;
+            box-shadow: 0 6px 0 #2c3e50, 0 10px 15px rgba(0,0,0,0.5);
+        }
+
+        .btn-gray:hover {
+            background-color: #4e6d8c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #34495e, 0 12px 18px rgba(0,0,0,0.6);
+        }
+
+        .retroBtn:active {
+            transform: translateY(4px); /* Efecto pulsado */
+            box-shadow: 0 2px 0 #1e8449;
+        }
+        
+        .btn-gray:active {
+            box-shadow: 0 2px 0 #2c3e50;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="video-container">
+        <!-- El video ahora se verá completo gracias a contain en el CSS -->
+        <video id="video-background" autoplay>
+            <source src="images/portal.mp4" type="video/mp4">
+            Tu navegador no soporta el vídeo.
+        </video>
+    </div>
+
+    <!-- Cuadro de fin de escena, oculto inicialmente -->
+    <div id="endScreenBox">
+        <h2>Has arribat!</h2>
+        <p>Prepara't per al següent repte</p>
+        
+        <!-- Botones con estilo retro aplicado -->
+        <a href="nivell dificil.html" class="retroBtn btn-green">Ultim Nivell</a>
+        <a href="menu dificil.html" class="retroBtn btn-gray">INSTRUCCIONS</a>
+    </div>
+
+    <script>
+        const video = document.getElementById('video-background');
+        const endScreen = document.getElementById('endScreenBox');
+
+        // Escuchamos el evento 'ended' (cuando termina el video)
+        video.onended = function() {
+            // Opcional: Hacer el video un poco transparente para que destaque el menú
+            video.style.opacity = "0.3"; 
+            
+            // Mostramos el cuadro retro con los dos botones
+            endScreen.style.display = 'block';
+        };
+    </script>
+</body>
+</html>
