@@ -1,398 +1,162 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>Island Adventure - Soccerdition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Island Adventure</title>
     <style>
-        /* IMPORTAR FUENTE RETRO */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+        /* Animació del Menú */
+        @keyframes flotarMenu {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* NOVA ANIMACIÓ PER A L'ULL (Moviment circular suau) */
+        @keyframes flotarUll {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(10px, 10px); }
+            50% { transform: translate(0, 20px); }
+            75% { transform: translate(-10px, 10px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         body {
-            background-image: url("images/fonsO1.gif");
-            background-size: cover;    
-            background-position: center;
-            background-attachment: fixed; 
-            background-color: #1a1a1a;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
-            overflow: hidden; 
-            /* Fuente por defecto para textos que no sean del cuadro */
-            font-family: sans-serif; 
-        }
-
-        #stage {
-            position: relative;
-            width: 600px; 
-            height: 600px;
-            background-image: url("images/f.jpg");
-            background-repeat: no-repeat;
-            background-size: 1500px 1200px; 
+            background-image: url("images/fonsO1.gif");
+            background-size: cover;
+            background-position: center;
+            background-color: #1a2a1f;
+            font-family: 'Press Start 2P', cursive;
             overflow: hidden;
-            
-            border: 8px solid #3e2723; 
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.2);
-            image-rendering: pixelated; 
-        }
-
-        /* Estilo para el video de muerte */
-        #deathVideoContainer {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 10;
-        }
-
-        #deathVideo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* --- CUADRO DE GAME OVER ESTILO RETRO --- */
-        #gameOverBox {
-            display: none; 
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px; 
-            padding: 40px 20px;
-            
-            font-family: 'Press Start 2P', cursive;
-            text-align: center;
-            z-index: 20;
-
-            background: rgba(0, 0, 0, 0.85); 
-            
-            border: 4px solid #ffffff; 
-            outline: 4px solid #2ecc71; 
-            outline-offset: -12px; 
-            
-            box-shadow: 0 0 0 8px rgba(0,0,0,0.5), 0 15px 25px rgba(0,0,0,0.8);
-        }
-
-        #gameOverBox h2 {
-            color: #ffffff;
-            font-size: 1.5rem; 
-            margin-top: 0;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            text-shadow: 3px 3px #27ae60; 
-            line-height: 1.3;
-        }
-
-        #gameOverBox p {
-            color: #2ecc71; 
-            font-size: 0.7rem; 
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        #restartBtn {
-            margin-top: 25px;
-            padding: 15px 30px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
             cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
-            background-color: #27ae60; 
-            color: white;
-            border: none;
-            text-transform: uppercase;
-            box-shadow: 0 6px 0 #1e8449, 0 10px 15px rgba(0,0,0,0.5);
-            transition: all 0.1s;
-            outline: none;
         }
 
-        #restartBtn:hover {
-            background-color: #2ecc71; 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 0 #27ae60, 0 12px 18px rgba(0,0,0,0.6);
+        .game-wrapper {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        #restartBtn:active {
-            transform: translateY(4px); 
-            box-shadow: 0 2px 0 #1e8449;
-        }
-
-        .cell {
-            display: block;
+        /* --- L'ULL AMB ANIMACIÓ --- */
+        .corner-image {
             position: absolute;
-            width: 100px;
-            height: 100px;
-            object-fit: contain; 
+            top: 80px;
+            right: 100px;
+            width: 150px;
+            height: 150px;
+            background-image: url("images/ull.png");
+            background-size: cover;
+            image-rendering: pixelated;
+            z-index: 10;
+
+            /* APLICACIÓ DEL MOVIMENT DE L'ULL */
+            animation: flotarUll 5s ease-in-out infinite;
+            will-change: transform;
+        }
+  .corner-image {
+            position: absolute;
+            top: 0px;
+            right: 100px;
+            width: 150px;
+            height: 150px;
+            background-image: url("images/ull.png");
+            background-size: cover;
+            image-rendering: pixelated;
+            z-index: 10;
+
+            /* APLICACIÓ DEL MOVIMENT DE L'ULL */
+            animation: flotarUll 5s ease-in-out infinite;
+            will-change: transform;
+        }
+        .screen {
+            text-align: center;
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 4px solid #ffffff;
+            outline: 4px solid #2ecc71;
+            outline-offset: -12px;
+            box-shadow: 0 0 0 8px rgba(0,0,0,0.5);
+            max-width: 600px;
+            animation: flotarMenu 4s ease-in-out infinite;
+            will-change: transform;
+            position: relative;
         }
 
-        #output {
-            width: 580px;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.8); 
-            border-left: 5px solid #2ecc71;
-            border-radius: 5px;
-            font-size: 18px;
-            color: white; 
-            text-shadow: 1px 1px 3px rgba(0,0,0,1); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        h1 {
+            color: #ffffff;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            line-height: 1.4;
+            text-shadow: 4px 4px #27ae60;
         }
 
-        strong {
+        p {
             color: #2ecc71;
+            font-size: 0.8rem;
+            margin-bottom: 50px;
+            animation: flash 1.5s infinite;
         }
 
         button {
+            padding: 20px 40px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
             cursor: url('https://cdn.cursors-4u.net/css-previews/freaky-purple-eye-9e2d4900-css.webp'), auto !important;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            box-shadow: 0 8px 0 #1e8449, 0 15px 20px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+            position: relative;
+            outline: none;
         }
 
-        .portal-active {
-            color: #f1c40f;
-            text-shadow: 0 0 10px #f1c40f;
-            font-weight: bold;
+        button:hover {
+            background-color: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 #27ae60, 0 20px 25px rgba(0,0,0,0.6);
+        }
+
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1e8449;
         }
     </style>
 </head>
 <body>
 
-<div id="stage">
-    <div id="deathVideoContainer">
-        <video id="deathVideo">
-            <source src="" type="video/mp4">
-        </video>
+    <div class="game-wrapper">
+        <div class="corner-image"></div>
+
+        <div class="screen">
+            <h1>ISLAND ADVENTURE</h1>
+            <p>Akumah's Version</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
     </div>
 
-    <div id="gameOverBox">
-        <h2>GAME OVER</h2>
-        <p id="gameOverReason"></p>
-        <p id="gameOverScore"></p>
-        <button id="restartBtn" onclick="location.reload()">VOLVER A JUGAR</button>
-    </div>
-</div>
-
-<p id="output"></p>
-
-<script>
-var stage = document.querySelector("#stage");
-var output = document.querySelector("#output");
-var deathVideoContainer = document.querySelector("#deathVideoContainer");
-var deathVideo = document.querySelector("#deathVideo");
-var gameOverBox = document.querySelector("#gameOverBox");
-var gameOverReason = document.querySelector("#gameOverReason");
-var gameOverScore = document.querySelector("#gameOverScore");
-
-window.addEventListener("keydown", keydownHandler, false);
-
-var WATER = 0, ISLAND = 1, PIRATE = 2, HOME = 3, SHIP = 4, MONSTER = 5, PORTAL = 6, GASOLINA = 7, COIN = 8;
-var UP = 38, DOWN = 40, RIGHT = 39, LEFT = 37;
-var SIZE = 100, ROWS = 12, COLUMNS = 15, VIEW = 6;
-
-var map = [
-    [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,1,0,3,0,0,0],
-    [0,0,8,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,1,0,0,0,8,0,0,0,0,1,0],
-    [0,8,0,0,0,0,0,0,0,1,0,0,8,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,8,0,0,0,0,0,0,0,0],
-    [0,0,1,0,0,0,0,0,0,0,0,0,1,0,0],
-    [0,0,0,0,0,8,0,0,0,0,0,0,0,0,8],
-    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,8,0,0,0,0,0,0,7]
-];
-
-var monsterRow = 8, monsterColumn = 5;
-var shipRow = 11, shipColumn = 0;
-var hasGasolina = false;
-var portalActivated = false; 
-
-var gameObjects = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,5,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [4,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-];
-
-var food = 20;
-var gold = 10; 
-var experience = 0;
-var gameMessage = "Fes servir les fleches per mouret. ¡Cada pas gasta energía!";
-var alive = true;
-
-render();
-
-function keydownHandler(event) {
-    if(!alive) return;
-    var newRow = shipRow, newColumn = shipColumn;
-
-    switch(event.keyCode) {
-        case UP: newRow--; break;
-        case DOWN: newRow++; break;
-        case LEFT: newColumn--; break;
-        case RIGHT: newColumn++; break;
+    <script>
+    function startGame(){
+        // Això t'enviarà a index.html
+        window.location.href = "menu.html";
     }
-
-    if(newRow < 0 || newRow >= ROWS || newColumn < 0 || newColumn >= COLUMNS) return;
-
-    if(newRow !== shipRow || newColumn !== shipColumn) food--;
-
-    gameObjects[shipRow][shipColumn] = 0;
-    shipRow = newRow; shipColumn = newColumn;
-    
-    if(food <= 0) {
-        food = 0; render(); endGame(); playDeathVideo("HAS MORT PER CANSANCI", "cansat.mp4");
-        return;
-    }
-
-    if(gameObjects[shipRow][shipColumn] === MONSTER) {
-        endGame(); playDeathVideo("L'ULL T'HA ATRAPAT", "ullmata.mp4");
-    } else {
-        gameObjects[shipRow][shipColumn] = SHIP;
-        switch(map[shipRow][shipColumn]) {
-            case WATER: gameMessage = "Camines per camp obert."; break;
-            case COIN: collectCoin(); break;
-            case ISLAND: buyEnergyWithGold(); break;
-            case GASOLINA: 
-                hasGasolina = true;
-                gameMessage = "¡Has conseguit la gasolina! Ahora pots despegar.";
-                map[shipRow][shipColumn] = WATER;
-                break;
-            case HOME: 
-                if(hasGasolina) {
-                    portalActivated = true;
-                    map[0][1] = PORTAL;
-                    gameMessage = "¡Has entrat al helicopter! pero... ¡Un portal misteriós ha aparescut en l'horitzó!";
-                } else {
-                    gameMessage = "¡No tens gasolina! No pots despegar.";
-                }
-                break;
-            case PORTAL: 
-                if(portalActivated) {
-                    window.location.href = "video portal.html"; 
-                    return;
-                }
-                break;
-        }
-        moveMonster();
-        if(gameObjects[shipRow][shipColumn] === MONSTER) {
-            endGame(); playDeathVideo("EL ULL T'HA ATRAPAT", "ullmata.mp4");
-        }
-    }
-    render();
-}
-
-function playDeathVideo(reason, videoSource) {
-    deathVideo.src = "images/" + videoSource;
-    deathVideo.load();
-    deathVideoContainer.style.display = "block";
-    deathVideo.play();
-    
-    deathVideo.onended = function() {
-        gameOverReason.innerHTML = reason;
-        gameOverScore.innerHTML = "PUNTUACIO FINAL: " + (gold + experience);
-        gameOverBox.style.display = "block";
-    };
-}
-
-function moveMonster() {
-    var M_UP = 1, M_DOWN = 2, M_LEFT = 3, M_RIGHT = 4;
-    var validDirections = [];
-    if(monsterRow > 0 && map[monsterRow - 1][monsterColumn] === WATER) validDirections.push(M_UP);
-    if(monsterRow < ROWS - 1 && map[monsterRow + 1][monsterColumn] === WATER) validDirections.push(M_DOWN);
-    if(monsterColumn > 0 && map[monsterRow][monsterColumn - 1] === WATER) validDirections.push(M_LEFT);
-    if(monsterColumn < COLUMNS - 1 && map[monsterRow][monsterColumn + 1] === WATER) validDirections.push(M_RIGHT);
-
-    if(validDirections.length > 0) {
-        var direction = validDirections[Math.floor(Math.random() * validDirections.length)];
-        gameObjects[monsterRow][monsterColumn] = 0;
-        switch(direction) {
-            case M_UP: monsterRow--; break;
-            case M_DOWN: monsterRow++; break;
-            case M_LEFT: monsterColumn--; break;
-            case M_RIGHT: monsterColumn++; break;
-        }
-        gameObjects[monsterRow][monsterColumn] = MONSTER;
-    }
-}
-
-function collectCoin() {
-    var coinAmount = Math.floor(Math.random() * 7) + 1;
-    gold += coinAmount;
-    gameMessage = "¡Has recollit una moneda! Guanyes " + coinAmount + " monedes.";
-    map[shipRow][shipColumn] = WATER;
-    experience += 1;
-}
-
-function buyEnergyWithGold() {
-    if(gold > 0) {
-        food += gold;
-        gameMessage = "¡En la isla compres " + gold + " de energía!";
-        experience += 3;
-        gold = 0;
-    } else {
-        gameMessage = "No tens monedes.";
-    }
-}
-
-function endGame() {
-    alive = false;
-    window.removeEventListener("keydown", keydownHandler, false);
-}
-
-function render() {
-    var camRow = Math.max(0, Math.min(shipRow - Math.floor(VIEW / 2), ROWS - VIEW));
-    var camColumn = Math.max(0, Math.min(shipColumn - Math.floor(VIEW / 2), COLUMNS - VIEW));
-    stage.style.backgroundPosition = (-camColumn * SIZE) + "px " + (-camRow * SIZE) + "px";
-
-    var existingCells = stage.querySelectorAll(".cell");
-    existingCells.forEach(cell => cell.remove());
-
-    for(var row = 0; row < VIEW; row++) {
-        for(var column = 0; column < VIEW; column++) {
-            var mr = camRow + row, mc = camColumn + column;
-            var cell = document.createElement("img");
-            cell.setAttribute("class", "cell");
-            stage.appendChild(cell);
-
-            switch(map[mr][mc]) {
-                case WATER: cell.src = "images/water2.png"; break;
-                case ISLAND: cell.src = "images/mercat.png"; break;
-                case COIN: cell.src = "images/monedes.png"; break;
-                case HOME: cell.src = "images/helicoptero.png"; break;
-                case GASOLINA: cell.src = "images/gasolina.png"; break;
-                case PORTAL: cell.src = "images/portal.gif"; break; 
-            }
-            switch(gameObjects[mr][mc]) {
-                case SHIP: cell.src = "images/akumah2.png"; break;
-                case MONSTER: cell.src = "images/ull.png"; break;
-            }
-            cell.style.top = row * SIZE + "px";
-            cell.style.left = column * SIZE + "px";
-        }
-    }
-    
-    var outputText = gameMessage + "<br><strong>Oro:</strong> " + gold + " | <strong>Energía:</strong> " + food + " | <strong>Exp:</strong> " + experience;
-    if(hasGasolina) outputText += " | <strong>⛽ Gasolina: SÍ</strong>";
-    if(portalActivated) outputText += " | <span class='portal-active'>🌀 PORTAL ACTIU</span>";
-    
-    output.innerHTML = outputText;
-}
-</script>
+    </script>
 
 </body>
 </html>
